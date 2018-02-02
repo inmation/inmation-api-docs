@@ -7,8 +7,9 @@ The client can be downloaded from [NuGet](https://www.nuget.org/packages/inmatio
 - Create a Console application.
 - Add the 'inmation-api-client' NuGet package to the project.
 - Replace the content of the Program.cs class with the one of the following examples:
-    * [Read & Write](./src/read-write-example.cs)
-    * [Subscribe](./src/subscribe-example.cs)
+    * [Read & Write](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/read-write-example.cs)
+    * [Subscribe](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/subscribe-example.cs)
+    * [ReadRawHistoricalData](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/readrawhistoricaldata-example.cs)
 
 Code snippet:
 

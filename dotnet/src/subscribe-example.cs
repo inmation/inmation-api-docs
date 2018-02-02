@@ -1,4 +1,3 @@
-using inmation.api;
 using inmation.api.model;
 using inmation.api.model.rpc;
 using System;
@@ -8,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace inmation.WebApi.ClientSample
+namespace inmation.api.client.example.Subscribe
 {
     class Program
     {
@@ -48,18 +47,29 @@ namespace inmation.WebApi.ClientSample
         {
             if (items.Any())
             {
-                Console.WriteLine($"Result of {MethodBase.GetCurrentMethod().Name}:");
+                Console.WriteLine("Result of {0}:", MethodBase.GetCurrentMethod().Name);
             }
             else
             {
-                Console.WriteLine($"Unsubscribe all DataChanged subscriptions.");
+                Console.WriteLine("Unsubscribe all DataChanged subscriptions.");
             }
 
-            SubscriptionResponse response = _client.SubscribeAsync(EnumSubscriptionType.DataChanged, items).Result;
-            foreach (ItemValue item in response.Data)
+            Task<SubscriptionResponse> subscribeTask = _client.SubscribeAsync(EnumSubscriptionType.DataChanged, items);
+            subscribeTask.Wait();
+            SubscriptionResponse subscriptionResponse = subscribeTask.Result;
+
+            if (subscriptionResponse.Error != null)
             {
-                Console.WriteLine($"ItemValue: {item}");
+                Console.WriteLine(string.Format("An error has occurred : {0}", subscriptionResponse.Error));
             }
+            else
+            {
+                foreach (ItemValue itemValue in subscriptionResponse.Data)
+                {
+                    Console.WriteLine("ItemValue: {0}", itemValue);
+                }
+            }
+
             Console.WriteLine();
         }
 
@@ -91,8 +101,9 @@ namespace inmation.WebApi.ClientSample
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error occurred during client creation: {ex.Message}");
+                Console.WriteLine("Error occurred during client creation: {0}", ex.Message);
             }
+            Console.WriteLine("");
             return apiClient;
         }
 
@@ -105,9 +116,9 @@ namespace inmation.WebApi.ClientSample
 
         private static void OnDataChanged(List<ItemValue> items)
         {
-            foreach (ItemValue item in items)
+            foreach (ItemValue itemValue in items)
             {
-                Console.WriteLine($"OnDataChanged: {item}");
+                Console.WriteLine("OnDataChanged: {0}", itemValue);
             }
         }
 
