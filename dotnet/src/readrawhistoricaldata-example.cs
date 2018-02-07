@@ -65,7 +65,6 @@ namespace inmation.api.client.example.ReadRawHistoricalData
             DateTime startTime = _startTime;
             DateTime endTime = startTime.AddMilliseconds(_numberOfSamples * _intervalInMilliseconds);
 
-
             Task<RawHistoricalDataResponse> readRawHistoricalDataTask = _client.ReadRawHistoricalDataAsync(items, startTime, endTime);
             readRawHistoricalDataTask.Wait();
             RawHistoricalDataResponse readRawHistoricalDataResponse = readRawHistoricalDataTask.Result;
@@ -83,7 +82,7 @@ namespace inmation.api.client.example.ReadRawHistoricalData
                 {
                     foreach (RawHistoricalDataItemData item in queryData.ItemsIterator())
                     {
-                        foreach (ItemValue itemValue in item.VqtIterator())
+                        foreach (RawHistoricalDataItemValue itemValue in item.ItemValueIterator())
                         {
                             Console.WriteLine("ItemValue: {0}", itemValue);
                         }
@@ -109,20 +108,27 @@ namespace inmation.api.client.example.ReadRawHistoricalData
             Console.WriteLine("Result of {0}:", MethodBase.GetCurrentMethod().Name);
 
             DateTime startTime = _startTime;
-            DateTime endTime = startTime.AddMilliseconds(_numberOfSamples * _intervalInMilliseconds);
+            DateTime endTime = startTime.AddMilliseconds(_numberOfSamples * _intervalInMilliseconds - 2);
 
             // Create an instance of a 'RawHistoryContext'.
             RawHistoryContext rawHistoryContext = new RawHistoryContext();
 
+            string pathSecondItem = items.Skip(1).First().Path;
+
             // Define a LINQ 'where' query and call the (extension) method 'SetFilter'. This method requires the using 'inmation.api.history;'.
             rawHistoryContext.Where(
             n => (n.Path.EndsWith("Item100") && n.ValueAsDouble > 10 && n.ValueAsDouble < 41)
-                    || (n.Path.Equals("/System/Core/Simulation/Item200") && n.ValueAsDouble > 40 && n.ValueAsDouble < 61)
+                    || (n.Path.Equals(pathSecondItem) && n.ValueAsDouble > 40 && n.ValueAsDouble < 61)
                     || (n.QualityText.Equals("Bad") || n.Timestamp.Equals(startTime))).SetFilter();
+
+            // Define the options
+            ReadRawHistoricalDataOptions options = new ReadRawHistoricalDataOptions();
+            options.Bounds = false;
+            options.Fields = new List<string>() { "ALL" };
 
             // Fetch historical data by using the 'ReadRawHistoricalData' method of the RawHistoryContext class.
             // The filter will be applied on the raw historical data retrieved for the items within the provided interval.
-            Task<RawHistoricalDataResponse> readRawHistoricalDataTask = rawHistoryContext.ReadRawHistoricalData(_client, items, startTime, endTime);
+            Task<RawHistoricalDataResponse> readRawHistoricalDataTask = rawHistoryContext.ReadRawHistoricalData(_client, items, startTime, endTime, options);
             readRawHistoricalDataTask.Wait();
             RawHistoricalDataResponse readRawHistoricalDataResponse = readRawHistoricalDataTask.Result;
 
@@ -139,12 +145,16 @@ namespace inmation.api.client.example.ReadRawHistoricalData
                 {
                     foreach (RawHistoricalDataItemData item in queryData.ItemsIterator())
                     {
-                        foreach (ItemValue itemValue in item.VqtIterator())
+                        foreach (RawHistoricalDataItemValue itemValue in item.ItemValueIterator())
                         {
                             Console.WriteLine("ItemValue: {0}", itemValue);
                         }
                     }
                 }
+
+                // Calculate the total duration for item with path <pathSecondItem>.
+                long? totalDuration = rawHistoricalData.QueryData.Sum(n => n.Items.Where(i => i.Path.Equals(pathSecondItem)).Sum(o => o.TotalDuration));
+                Console.WriteLine("\nTotal duration for Item '{0}': {1}", pathSecondItem, totalDuration);
             }
             else if (readRawHistoricalDataResponse.Strategy != null)
             {
