@@ -37,6 +37,10 @@ For additional settings read the README.md in the installation folder of this se
 
 The Swagger documentation can be viewed in de Web Browser by visiting: `http://hostname:8002/api/docs`.
 
+## HTTPS - WSS
+
+Both interface can have encryption with TLS/SSL. See instructions [here](./encryption.md).
+
 ## Features
 
 ### ExecFunction
