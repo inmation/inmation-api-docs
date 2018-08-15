@@ -1,0 +1,14 @@
+{
+  "name": "subscribe",
+  "version": "1.0.0",
+  "description": "Example with  subscription",
+  "main": "app.js",
+  "scripts": {
+    "start": "node ./app.js"
+  },
+  "author": "info@inmation.com",
+  "license": "MIT",
+  "dependencies": {
+    "@inmation/inmation-api-client": "^1.2.0"
+  }
+}
