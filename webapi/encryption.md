@@ -94,16 +94,6 @@ netsh http delete sslcert ipport=0.0.0.0:8002
 
 ## Web API configuration
 
-Make sure the Web API is configured to use https. This can be configured with the setting:
-
-```xml
-<add key="inmation.Api.Http.BaseAddress" value="https://*:8002" />
-```
-
-The default location of the configuration file is:
-
-```path
-C:\inmation.root\webapi\inmation.WebApi.WindowsService.exe.config
-```
+Make sure the Web API Server Object 'Base Address' property is configured to use https.
 
 **!!! Restart the inmation Web API Windows Service after the configuration change !!!**
