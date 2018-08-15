@@ -36,10 +36,16 @@ Code snippet:
 ```javascript
 const { Client, model } = require('@inmation/inmation-api-client');
 
-const wsURL = 'ws://HOSTNAME:8000/ws';
+const wsURL = 'ws://HOSTNAME:8002/ws';
+// For secure connection use wss://HOSTNAME:8002/ws
+
 const options = {
-    usr: 'USERNAME',
-    pwd: 'PASSWORD'
+    auth: {
+        username: "username@domain.com",
+        password: "password",
+        authority: "ad",
+        grant_type: "password"
+    }
 };
 
 const client = new Client();
