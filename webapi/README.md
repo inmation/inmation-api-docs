@@ -31,7 +31,7 @@ There are different ways to install the Web API service. First, the service may 
 | | | |
 | -r | | Removes the inmation Web API Windows service. |
 
-command line options have to the prefix '--'.
+Command line options have the prefix '--'.
 
 Example command to install the Web API as a service:
 
