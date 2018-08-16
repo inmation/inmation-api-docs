@@ -95,7 +95,7 @@ Based on the provided username and authorization groups a mapping to inmation pr
 4) A User object exist beneath the Profile of which the authenticating domain and account name matches the provided username.
 5) A Group object exist beneath the Profile of which the authenticating domain and account name matches one of the security group fetched from the AD.
 
-Based on the fetched authorization information a JWT will be created and signed with the Access Token Secret Defined in the Web API Server Object.
+Based on the fetched authorization information a JWT will be created and signed with the 'Access Token Secret' defined in the Web API Server Object.
 
 ## Security Account Manager (SAM) integration
 
@@ -103,4 +103,4 @@ Local Machine account integration supports only inmation profile / user mapping 
 
 ## Authorization
 
-The endpoints in the 'V2' namespace of the Web API can consume access token for authorization. In the request the 'Authorization' HTTP header has to be provided. The value of this header field must be set to 'Bearer <access_token>'.
+The endpoints in the 'V2' namespace of the Web API can consume access token for authorization. In the request the 'Authorization' HTTP header has to be provided. The value of this header must be set to 'Bearer <access_token>'.
