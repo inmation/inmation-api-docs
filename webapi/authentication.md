@@ -103,4 +103,15 @@ Local Machine account integration supports only inmation profile / user mapping 
 
 ## Authorization
 
-The endpoints in the 'V2' namespace of the Web API can consume access token for authorization. In the request the 'Authorization' HTTP header has to be provided. The value of this header must be set to 'Bearer <access_token>'.
+The endpoints in the 'V2' namespace of the Web API can consume access token for authorization. In the request the 'Authorization' HTTP header has to be provided. The value of this header must be set to 'Bearer <access_token>'. The profiles in the 'in_prf' claim of the token are used for permission checking. A permission check takes place for each provided item in the request. At least one of the profiles has to be granted the required permission, otherwise a 'permission denied' error will be returned.
+
+### Required permission per endpoint
+
+| Endpoint | Required permission (inmation.model.flags.SecurityAttributes)|
+| -------- | ------------------------------------------- |
+| /api/v2/read  | READ|
+| /api/v2/readhistoricaldata  | READ|
+| /api/v2/readrawhistoricaldata | READ|
+| /api/v2/write  | WRITE|
+| /api/v2/execfunction | Requires custom implementation to check permissions.|
+| /api/v2/execfunction/v2b | Requires custom implementation to check permissions.|

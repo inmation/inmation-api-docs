@@ -61,27 +61,6 @@ Both interface can have encryption with TLS/SSL. See instructions [here](./encry
 
 ## Features
 
-### ExecFunction
+### [Execute Function](execfunction.md)
 
-ExecFunction feature makes it possible to create 'custom endpoints'. Request can be send to the server containing an object (Lua Table) as an argument. Response can be anything in which an object (Lua table) is automatically converted to JSON.
-
-Make sure the function within the library is declared with a colon notation.
-
-In Lua: `lib:myfunction(arg)` is the same as `lib.myfunction(self, arg)`.
-
-Lua script example:
-
-```lua
-local lib = {}
-
-function lib:say_hello(arg)
-    local _arg = arg or {} -- in case no argument is set
-    local name = _arg.name or 'unknown'
-    local msg = string.format("Hello %s", name)
-    return msg
-end
-
-return lib
-```
-
-This feature can be tested with Swagger. In case the library is stored in a different hierarchical scope then the context path defined in the Web API server object, you need to set the context `cxt` in the request.
+### [Read Raw Historical Data](readrawhistoricaldata.md)
