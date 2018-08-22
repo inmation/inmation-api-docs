@@ -4,12 +4,12 @@ The client can be downloaded from [NuGet](https://www.nuget.org/packages/inmatio
 
 ## Example Console application
 
-- Create a Console application.
-- Add the 'inmation-api-client' NuGet package to the project.
-- Replace the content of the Program.cs class with the one of the following examples:
-    * [Read & Write](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/read-write-example.cs)
-    * [Subscribe](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/subscribe-example.cs)
-    * [ReadRawHistoricalData](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/readrawhistoricaldata-example.cs)
+- The following example console application projects are available:
+    * [Read & Write](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/ReadWrite)
+    * [Subscribe](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/Subscribe)
+    * [ReadRawHistoricalData](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/ReadRawHistoricalData.MatchDuration)
+    * [ReadRawHistoricalData MatchDuration](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/ReadRawHistoricalData)
+- After downloading the [example solution](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/inmation.api.client.example.sln) or one of the console application projects the 'inmation-api-client' NuGet package needs to be restored.
 
 Code snippet:
 
@@ -18,16 +18,13 @@ using inmation.api;
 
 Client apiClient = new Client();
 
-string WebSocketUrl = "ws://localhost:8000/ws";
-
-RpcOptions options = new RpcOptions();
-options.Username = "USERNAME";
-options.Password = "PASSWORD";
+string WebSocketUrl = "ws://localhost:8002/ws";
+ConnectOptions options = new ConnectOptions("USERNAME", "PASSWORD");
 
 // Connect and authenticate. By providing credentials to the connectWs method, the credentials will be stored in the session.
-ConnectionResponse connectionresponse = apiClient.ConnectWs(WebSocketUrl, options).Result;
-if (connectionresponse.Error != null)
+ConnectionResponse connectResponse = apiClient.ConnectWs(WebSocketUrl, options).Result;
+if (connectResponse.Error != null)
 {
-    Console.WriteLine(string.Format("Connect failed: {0}", connectionresponse.Error?.First().Message));
+    Console.WriteLine(string.Format("Connect failed: {0}", connectResponse.Error?.First().Message));
 }
 ```

@@ -1,10 +1,11 @@
-using inmation.api.history;
+﻿using inmation.api.history;
 using inmation.api.model;
 using inmation.api.model.rpc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,7 +13,7 @@ namespace inmation.api.client.example.ReadRawHistoricalData
 {
     class Program
     {
-        private const string WebSocketUrl = "ws://localhost:8000/ws";
+        private const string WebSocketUrl = "ws://localhost:8002/ws";
         private const string Username = "USERNAME";
         private const string Password = "PASSWORD";
         private static Client _client;
@@ -25,11 +26,11 @@ namespace inmation.api.client.example.ReadRawHistoricalData
         {
             // Make sure the following Variable / Holder items exist in the system and are archived
             List<Identity> identityList = new List<Identity>();
-            identityList.Add(new Identity("/System/Core/Simulation/Item100"));
-            identityList.Add(new Identity("/System/Core/Simulation/Item200"));
+            identityList.Add(new Identity("/System/Core/Examples/Demo Data/Process Data/DC4711"));
+            identityList.Add(new Identity("/System/Core/Examples/Demo Data/Process Data/DC666"));
 
             // Create the API client
-            _client = CreateApiClient(Username, Password);
+            _client = CreateApiClient(Username, Password).Result;
 
             // Write Items / generate historical data
             List<ItemValue> writeItems = new List<ItemValue>();
@@ -42,68 +43,20 @@ namespace inmation.api.client.example.ReadRawHistoricalData
                 }
             }
 
-            WriteMultipleItemsAtOnce(writeItems);
-
-            // Read Raw Historical Data
-            ReadRawHistoricalData(identityList);
+            WriteMultipleItemsAtOnce(writeItems).Wait();
 
             // Read Filtered Raw Historical Data (with LINQ)
-            ReadRawHistoricalData_Filtered(identityList);
+            ReadRawHistoricalData_MatchDuration(identityList);
 
             Console.ReadLine();
             _client.Dispose();
         }
 
         /// <summary>
-        /// Reads raw historical data
+        /// Reads raw historical data and calculates a custom duration.
         /// </summary>
         /// <param name="items">List of Identity instances to read.</param>
-        private static void ReadRawHistoricalData(List<Identity> items)
-        {
-            Console.WriteLine("Result of {0}:", MethodBase.GetCurrentMethod().Name);
-
-            DateTime startTime = _startTime;
-            DateTime endTime = startTime.AddMilliseconds(_numberOfSamples * _intervalInMilliseconds);
-
-            Task<RawHistoricalDataResponse> readRawHistoricalDataTask = _client.ReadRawHistoricalDataAsync(items, startTime, endTime);
-            readRawHistoricalDataTask.Wait();
-            RawHistoricalDataResponse readRawHistoricalDataResponse = readRawHistoricalDataTask.Result;
-
-            if (readRawHistoricalDataResponse.Error != null)
-            {
-                Console.WriteLine(string.Format("An error has occurred : {0}", readRawHistoricalDataResponse.Error.First()));
-            }
-            else if (readRawHistoricalDataResponse.Data != null)
-            {
-                // In this case we got raw historical data 
-                // Iterate through the result by using iterators (which make use of lazy loading) and output the itemValues.
-                RawHistoricalData rawHistoricalData = readRawHistoricalDataResponse.Data;
-                foreach (RawHistoricalDataQueryData queryData in rawHistoricalData.QueryDataIterator())
-                {
-                    foreach (RawHistoricalDataItemData item in queryData.ItemsIterator())
-                    {
-                        foreach (RawHistoricalDataItemValue itemValue in item.ItemValueIterator())
-                        {
-                            Console.WriteLine("ItemValue: {0}", itemValue);
-                        }
-                    }
-                }
-            }
-            else if (readRawHistoricalDataResponse.Strategy != null)
-            {
-                // In case the size of the data exceeds the 'query_count_limit' a query strategy is returned to fetch the 
-                // historical data in multiple chunks.
-                Console.WriteLine("A strategy is returned by the server, which will be described in an other example.");
-            }
-
-            Console.WriteLine();
-        }
-
-        /// <summary>
-        /// Reads raw historical data by providing a filter expression defined by a LINQ query.
-        /// </summary>
-        /// <param name="items">List of Identity instances to read.</param>
-        private static void ReadRawHistoricalData_Filtered(List<Identity> items)
+        private static void ReadRawHistoricalData_MatchDuration(List<Identity> items)
         {
             Console.WriteLine("Result of {0}:", MethodBase.GetCurrentMethod().Name);
 
@@ -115,11 +68,14 @@ namespace inmation.api.client.example.ReadRawHistoricalData
 
             string pathSecondItem = items.Skip(1).First().Path;
 
-            // Define a LINQ 'where' query and call the (extension) method 'SetFilter'. This method requires the using 'inmation.api.history;'.
+            long leadingBoundingTimespan = _intervalInMilliseconds * 100;
+            long trailingBoundingTimespan = _intervalInMilliseconds * 100;
+            long leadingBoundingNumberOfIntervals = 10;
+            long trailingBoundingNumberOfIntervals = 10;
+
+            // Define a LINQ 'where' query and call the (extension) method 'AddMatchDuration'. This method requires the using 'inmation.api.history;'.
             rawHistoryContext.Where(
-            n => (n.Path.EndsWith("Item100") && n.ValueAsDouble > 10 && n.ValueAsDouble < 41)
-                    || (n.Path.Equals(pathSecondItem) && n.ValueAsDouble > 40 && n.ValueAsDouble < 61)
-                    || (n.QualityText.Equals("Bad") || n.Timestamp.Equals(startTime))).SetFilter();
+            n => (n.ValueAsDouble > 10)).AddMatchDuration("CustomDuration01", leadingBoundingTimespan, trailingBoundingTimespan, leadingBoundingNumberOfIntervals, trailingBoundingNumberOfIntervals);
 
             // Define the options
             ReadRawHistoricalDataOptions options = new ReadRawHistoricalDataOptions();
@@ -134,7 +90,7 @@ namespace inmation.api.client.example.ReadRawHistoricalData
 
             if (readRawHistoricalDataResponse.Error != null)
             {
-                Console.WriteLine(string.Format("An error has occurred : {0}", readRawHistoricalDataResponse.Error.First()));
+                Console.WriteLine(string.Format("An error has occurred : {0}", readRawHistoricalDataResponse.Error?.First().Message));
             }
             else if (readRawHistoricalDataResponse.Data != null)
             {
@@ -153,7 +109,7 @@ namespace inmation.api.client.example.ReadRawHistoricalData
                 }
 
                 // Calculate the total duration for item with path <pathSecondItem>.
-                long? totalDuration = rawHistoricalData.QueryData.Sum(n => n.Items.Where(i => i.Path.Equals(pathSecondItem)).Sum(o => o.TotalDuration));
+                long? totalDuration = rawHistoricalData.QueryData.Sum(n => n.Items.Where(i => i.Path.Equals(pathSecondItem)).Sum(o => o.SummarizeDuration()));
                 Console.WriteLine("\nTotal duration for Item '{0}': {1}", pathSecondItem, totalDuration);
             }
             else if (readRawHistoricalDataResponse.Strategy != null)
@@ -171,17 +127,15 @@ namespace inmation.api.client.example.ReadRawHistoricalData
         /// Currently only writing based on item path and VQT is supported.
         /// </summary>
         /// <param name="items">List of ItemValue instances to write.</param>
-        private static void WriteMultipleItemsAtOnce(List<ItemValue> items)
+        private static async Task WriteMultipleItemsAtOnce(List<ItemValue> items)
         {
-            Console.WriteLine("Result of {0}:", MethodBase.GetCurrentMethod().Name);
+            LogResult();
 
-            Task<WriteResponse> writeTask = _client.WriteAsync(items);
-            writeTask.Wait();
-            WriteResponse writeResponse = writeTask.Result;
+            WriteResponse writeResponse = await _client.WriteAsync(items);
 
             if (writeResponse.Error != null)
             {
-                Console.WriteLine(string.Format("An error has occurred : {0}", writeResponse.Error));
+                Console.WriteLine(string.Format("An error has occurred : {0}", writeResponse.Error?.First().Message));
             }
             else
             {
@@ -200,7 +154,7 @@ namespace inmation.api.client.example.ReadRawHistoricalData
         /// By providing credentials in the constructor of the apiClient it is not necessary to provide credentials for each individual request.
         /// during the session.
         /// </summary>
-        private static Client CreateApiClient(string username = null, string password = null)
+        private static async Task<Client> CreateApiClient(string username = null, string password = null)
         {
             Client apiClient = new Client();
             try
@@ -208,15 +162,13 @@ namespace inmation.api.client.example.ReadRawHistoricalData
                 apiClient.OnConnectionChanged += OnConnectionStateChanged;
                 apiClient.OnError += OnError;
 
-                RpcOptions options = new RpcOptions();
-                options.Username = username;
-                options.Password = password;
+                ConnectOptions options = new ConnectOptions(username, password);
 
                 // Connect and authenticate. By providing credentials to the connectWs method, the credentials will be stored in the session.
-                ConnectionResponse connectionresponse = apiClient.ConnectWs(WebSocketUrl, options).Result;
-                if (connectionresponse.Error != null)
+                ConnectionResponse connectResponse = await apiClient.ConnectWs(WebSocketUrl, options);
+                if (connectResponse.Error != null)
                 {
-                    Console.WriteLine("Connect failed: {0}", connectionresponse.Error?.First().Message);
+                    Console.WriteLine("Connect failed: {0}", connectResponse.Error?.First().Message);
                 }
             }
             catch (Exception ex)
@@ -225,6 +177,11 @@ namespace inmation.api.client.example.ReadRawHistoricalData
             }
             Console.WriteLine("");
             return apiClient;
+        }
+
+        private static void LogResult([CallerMemberName] string callingMethodName = "")
+        {
+            Console.WriteLine("Result of {0}:", callingMethodName);
         }
 
         #region EventHandlers

@@ -1,10 +1,9 @@
-using inmation.api;
-using inmation.api.model;
+﻿using inmation.api.model;
 using inmation.api.model.rpc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,7 +11,7 @@ namespace inmation.api.client.example.ReadWrite
 {
     class Program
     {
-        private const string WebSocketUrl = "ws://localhost:8000/ws";
+        private const string WebSocketUrl = "ws://localhost:8002/ws";
         private const string Username = "USERNAME";
         private const string Password = "PASSWORD";
         private static Client _client;
@@ -21,18 +20,18 @@ namespace inmation.api.client.example.ReadWrite
         {
             // Make sure the following Variable / Holder items exist in the system
             List<Identity> identityList = new List<Identity>();
-            identityList.Add(new Identity("/System/Core/Simulation/Item100"));
-            identityList.Add(new Identity("/System/Core/Simulation/Item200"));
+            identityList.Add(new Identity("/System/Core/Examples/Demo Data/Process Data/DC4711"));
+            identityList.Add(new Identity("/System/Core/Examples/Demo Data/Process Data/DC666"));
 
             // Create the API client
-            _client = CreateApiClient(Username, Password);
+            _client = CreateApiClient(Username, Password).Result;
 
             // Write Items
             List<ItemValue> writeItems = identityList.Select(n => new ItemValue() { Path = n.Path, Value = "test", Quality = 0, Timestamp = DateTime.UtcNow.AddDays(-1) }).ToList();
-            WriteMultipleItemsAtOnce(writeItems);
+            WriteMultipleItemsAtOnce(writeItems).Wait();
 
             // Read items
-            ReadMultipleItemsAtOnce(identityList);
+            ReadMultipleItemsAtOnce(identityList).Wait();
 
             Console.ReadLine();
             _client.Dispose();
@@ -43,17 +42,15 @@ namespace inmation.api.client.example.ReadWrite
         /// Currently only reading based on the path of an item or property is supported.
         /// </summary>
         /// <param name="items">List of Identity instances to read.</param>
-        private static void ReadMultipleItemsAtOnce(List<Identity> items)
+        private static async Task ReadMultipleItemsAtOnce(List<Identity> items)
         {
-            Console.WriteLine("Result of {0}:", MethodBase.GetCurrentMethod().Name);
+            LogResult();
 
-            Task<ReadResponse> readTask = _client.ReadAsync(items);
-            readTask.Wait();
-            ReadResponse readResponse = readTask.Result;
+            ReadResponse readResponse = await _client.ReadAsync(items);
 
             if (readResponse.Error != null)
             {
-                Console.WriteLine(string.Format("An error has occurred : {0}", readResponse.Error));
+                Console.WriteLine(string.Format("An error has occurred : {0}", readResponse.Error?.First().Message));
             }
             else
             {
@@ -71,17 +68,15 @@ namespace inmation.api.client.example.ReadWrite
         /// Currently only writing based on item path and VQT is supported.
         /// </summary>
         /// <param name="items">List of ItemValue instances to write.</param>
-        private static void WriteMultipleItemsAtOnce(List<ItemValue> items)
+        private static async Task WriteMultipleItemsAtOnce(List<ItemValue> items)
         {
-            Console.WriteLine("Result of {0}:", MethodBase.GetCurrentMethod().Name);
+            LogResult();
 
-            Task<WriteResponse> writeTask = _client.WriteAsync(items);
-            writeTask.Wait();
-            WriteResponse writeResponse = writeTask.Result;
+            WriteResponse writeResponse = await _client.WriteAsync(items);
 
             if (writeResponse.Error != null)
             {
-                Console.WriteLine(string.Format("An error has occurred : {0}", writeResponse.Error));
+                Console.WriteLine(string.Format("An error has occurred : {0}", writeResponse.Error?.First().Message));
             }
             else
             {
@@ -100,7 +95,7 @@ namespace inmation.api.client.example.ReadWrite
         /// By providing credentials in the constructor of the apiClient it is not necessary to provide credentials for each individual request.
         /// during the session.
         /// </summary>
-        private static Client CreateApiClient(string username = null, string password = null)
+        private static async Task<Client> CreateApiClient(string username = null, string password = null)
         {
             Client apiClient = new Client();
             try
@@ -108,15 +103,13 @@ namespace inmation.api.client.example.ReadWrite
                 apiClient.OnConnectionChanged += OnConnectionStateChanged;
                 apiClient.OnError += OnError;
 
-                RpcOptions options = new RpcOptions();
-                options.Username = username;
-                options.Password = password;
+                ConnectOptions options = new ConnectOptions(username, password);
 
                 // Connect and authenticate. By providing credentials to the connectWs method, the credentials will be stored in the session.
-                ConnectionResponse connectionresponse = apiClient.ConnectWs(WebSocketUrl, options).Result;
-                if (connectionresponse.Error != null)
+                ConnectionResponse connectResponse = await apiClient.ConnectWs(WebSocketUrl, options);
+                if (connectResponse.Error != null)
                 {
-                    Console.WriteLine("Connect failed: {0}", connectionresponse.Error?.First().Message);
+                    Console.WriteLine("Connect failed: {0}", connectResponse.Error?.First().Message);
                 }
             }
             catch (Exception ex)
@@ -125,6 +118,11 @@ namespace inmation.api.client.example.ReadWrite
             }
             Console.WriteLine("");
             return apiClient;
+        }
+
+        private static void LogResult([CallerMemberName] string callingMethodName = "")
+        {
+            Console.WriteLine("Result of {0}:", callingMethodName);
         }
 
         #region EventHandlers

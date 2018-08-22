@@ -1,9 +1,9 @@
-using inmation.api.model;
+﻿using inmation.api.model;
 using inmation.api.model.rpc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +11,7 @@ namespace inmation.api.client.example.Subscribe
 {
     class Program
     {
-        private const string WebSocketUrl = "ws://localhost:8000/ws";
+        private const string WebSocketUrl = "ws://localhost:8002/ws";
         private const string Username = "USERNAME";
         private const string Password = "PASSWORD";
         private static Client _client;
@@ -20,20 +20,20 @@ namespace inmation.api.client.example.Subscribe
         {
             // Make sure the following Generic items exist in the system
             List<Identity> identityList = new List<Identity>();
-            identityList.Add(new Identity("/System/Core/Simulation/Saw100"));
-            identityList.Add(new Identity("/System/Core/Simulation/Saw200"));
+            identityList.Add(new Identity("/System/Core/Examples/Demo Data/Process Data/DC4711"));
+            identityList.Add(new Identity("/System/Core/Examples/Demo Data/Process Data/DC666"));
 
             // Create the API client
             _client = CreateApiClient(Username, Password);
 
             // Subscribe DataChanged
-            SubscribeDataChanged(identityList);
+            SubscribeDataChanged(identityList).Wait();
 
             // For demo purpose we wait some time to be able to receive data changes before we unsubscribe again.
             Task.Delay(5000).Wait();
 
             // UnSubscribe DataChanged (by providing an empty list).
-            SubscribeDataChanged(new List<Identity>());
+            SubscribeDataChanged(new List<Identity>()).Wait();
 
             Console.ReadLine();
             _client.Dispose();
@@ -43,24 +43,22 @@ namespace inmation.api.client.example.Subscribe
         /// Subscribes to DataChanged events for the provided items.
         /// </summary>
         /// <param name="items">List of Identity instances to subscribe to.</param>
-        private static void SubscribeDataChanged(List<Identity> items)
+        private static async Task SubscribeDataChanged(List<Identity> items)
         {
             if (items.Any())
             {
-                Console.WriteLine("Result of {0}:", MethodBase.GetCurrentMethod().Name);
+                LogResult();
             }
             else
             {
                 Console.WriteLine("Unsubscribe all DataChanged subscriptions.");
             }
 
-            Task<SubscriptionResponse> subscribeTask = _client.SubscribeAsync(EnumSubscriptionType.DataChanged, items);
-            subscribeTask.Wait();
-            SubscriptionResponse subscriptionResponse = subscribeTask.Result;
+            SubscriptionResponse subscriptionResponse = await _client.SubscribeAsync(EnumSubscriptionType.DataChanged, items);
 
             if (subscriptionResponse.Error != null)
             {
-                Console.WriteLine(string.Format("An error has occurred : {0}", subscriptionResponse.Error));
+                Console.WriteLine(string.Format("An error has occurred : {0}", subscriptionResponse.Error?.First().Message));
             }
             else
             {
@@ -88,15 +86,13 @@ namespace inmation.api.client.example.Subscribe
                 apiClient.OnConnectionChanged += OnConnectionStateChanged;
                 apiClient.OnError += OnError;
 
-                RpcOptions options = new RpcOptions();
-                options.Username = username;
-                options.Password = password;
+                ConnectOptions options = new ConnectOptions(username, password);
 
                 // Connect and authenticate. By providing credentials to the connectWs method, the credentials will be stored in the session.
-                ConnectionResponse connectionresponse = apiClient.ConnectWs(WebSocketUrl, options).Result;
-                if (connectionresponse.Error != null)
+                ConnectionResponse connectResponse = apiClient.ConnectWs(WebSocketUrl, options).Result;
+                if (connectResponse.Error != null)
                 {
-                    Console.WriteLine(string.Format("Connect failed: {0}", connectionresponse.Error?.First().Message));
+                    Console.WriteLine(string.Format("Connect failed: {0}", connectResponse.Error?.First().Message));
                 }
             }
             catch (Exception ex)
@@ -105,6 +101,11 @@ namespace inmation.api.client.example.Subscribe
             }
             Console.WriteLine("");
             return apiClient;
+        }
+
+        private static void LogResult([CallerMemberName] string callingMethodName = "")
+        {
+            Console.WriteLine("Result of {0}:", callingMethodName);
         }
 
         #region EventHandlers
