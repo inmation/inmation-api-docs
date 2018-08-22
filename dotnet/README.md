@@ -9,7 +9,7 @@ The client can be downloaded from [NuGet](https://www.nuget.org/packages/inmatio
     * [Subscribe](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/Subscribe)
     * [ReadRawHistoricalData](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/ReadRawHistoricalData.MatchDuration)
     * [ReadRawHistoricalData MatchDuration](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/ReadRawHistoricalData)
-- After downloading the [example solution](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src/inmation.api.client.example.sln) or one of the console application projects the 'inmation-api-client' NuGet package needs to be restored.
+- After downloading the [example solution](https://github.com/inmation/inmation-api-docs/tree/master/dotnet/src) or one of the console application projects the 'inmation-api-client' NuGet package needs to be restored.
 
 Code snippet:
 
