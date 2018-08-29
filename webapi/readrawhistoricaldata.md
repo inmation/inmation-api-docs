@@ -1,6 +1,6 @@
 # Read Raw Historical Data
 
-- Can return Historiacal data points or a query strategy.
+- Can return Historical data points or a query strategy.
 
 - Returns by default a query strategy when the total number of data points exceeds three million.
 
@@ -76,6 +76,27 @@ The 'Match Duration' feature gives the possibility to perform (server-side) dura
 | trailing_bounding_time_span | The maximum time span in milliseconds after the trailing bounding value of the requested interval to search for a matching bounding value. |
 | trailing_bounding_intervals_no| The number of intervals to use to search for a trailing leading bounding value. |
 
+The following example shows how Match Durations can be defined in a 'ReadRawHistoricalDataQuery' / request body:
+
+```json
+{
+    "md": [
+        {
+            "name": "MyDuration01",
+            "expression": {
+                "v": {
+                    "$gt": 20
+                }
+            },
+            "leading_bounding_time_span": 15000,
+            "trailing_bounding_time_span": 15000,
+            "leading_bounding_intervals_no": 3,
+            "trailing_bounding_intervals_no": 3
+        }
+    ]
+}
+```
+
 For example, setting the 'leading_bounding_time_span' 15000 and the 'leading_bounding_intervals_no' to 3, means the logic searches for a matching leading bounding value in three steps starting from the timestamp of the leading bounding value of the requested interval.
 
 ```ascii
@@ -100,7 +121,7 @@ Data point '.' is excluded from the response and match duration calculation.
 
 #### Examples
 
-The following example shows the output based on the Match Duration expression '{"v" : {"gt": 20}}':
+The following example shows the output based on the Match Duration expression '{"v" : {"$gt": 20}}':
 
 ```ascii
         interval                         interval
@@ -118,7 +139,7 @@ x       40 |            x                   |        x
 
 Data points indicated by '*' are included in the response but excluded from the match duration calculation.
 
-Match Duration calculations can be used together with the filter option. The following example shows the output based on the Match Duration expression '{"v" : {"gt": 20}}' and filter '{"v" : {"gt": 20}}'
+Match Duration calculations can be used together with the filter option. The following example shows the output based on the Match Duration expression '{"v" : {"$gt": 20}}' and filter '{"v" : {"$gte": 20}}'
 
 ```ascii
         interval                         interval
