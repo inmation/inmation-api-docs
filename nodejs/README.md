@@ -15,6 +15,7 @@ This example shows a DataChange subscription. When the value changes in system:i
 
 items is an array with objects containing:
 
+- p (Path)
 - v (value)
 - q (quality, OPC quality code)
 - t (timestamp, ISO 8601 UTC)
@@ -24,6 +25,7 @@ Example of items in JSON representation:
 ```json
 [
     {
+        "p": "/System/Core/Temp",
         "v": 100,
         "q": 0,
         "t": "2018-01-05T22:05:57.618Z"
