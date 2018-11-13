@@ -14,6 +14,12 @@ The following clients are available:
 
 ### [Node.js API Client](./nodejs/README.md)
 
+### [Node-RED node](./nodered/README.md)
+
+### [Python API Client](./python/README.md)
+
+### [Visual Studio Code Extension](./vscode/README.md)
+
 ## About inmation
 
 ![inmation header](https://www.inmation.com/images/inmation_github_header.png "inmation")
