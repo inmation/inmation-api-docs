@@ -18,7 +18,7 @@ To view the imported data, click the right mouse button, choose Result Dataset, 
 
 ## Store data to inmation
 
-After incoming data has been shaped and machine learning module created, output can be stored back to the DataStudio. Deploy another script execution tile in ML studio, connect the tile with data output and the zip fil. Create a new item in the data studio I/O model, copy the full property path, fill it in the example code below, which can be found here `(here the link to the write.py can be entered)` and click on run. \
+After incoming data has been shaped and machine learning module created, output can be stored back to the DataStudio. Deploy another script execution tile in ML studio, connect the tile with data output and the zip fil. Create a new item in the I/O model, copy the full property path, fill it in the example, which can be found [here](./scripts/write.py) and click on run. \
 After successful run, values are set to the item in the DataStudio.
 
 ## What can your company create using Azure ML Studio and system:inmation?
