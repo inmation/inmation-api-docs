@@ -20,6 +20,10 @@ The following clients are available:
 
 ### [Visual Studio Code Extension](./vscode/README.md)
 
+## NGINX Plus for system:inmation
+
+What is NGINX and why it should be used with inmation Web API. Read more about it [here](./nginx/README.md).
+
 ## About inmation
 
 ![inmation header](https://www.inmation.com/images/inmation_github_header.png "inmation")
