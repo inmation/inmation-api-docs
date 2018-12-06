@@ -154,3 +154,79 @@ x       40 |            x                   |        x
  <---------------------> <-----------> <------------>
   d[1]                    d[2]          d[3]
 ```
+
+### Post Execution
+
+The Post execution feature makes it possible to execute any Lua logic server-side (in the Core) to process / transform the data returned by a 'ReadRawHistoricalData' query.
+
+The following example shows how Post Execution functions can be defined in a 'ReadRawHistoricalDataQuery' / request body:
+
+```json
+{
+    "post_execution": [
+    {
+        "lib": "CalcLib",
+        "func": "countOccurrences",
+        "arg": {}
+    }
+  ]
+}
+```
+
+The library defined in a Post Execution item must be available in the context of the Web API. An example library to count the number of historical data points per item can be found [here](./scripts/rrhd-post-exec.lua)
+
+The implementation of the library
+
+```lua
+local lib = {}
+
+function lib:countOccurrences(arg)
+    arg = arg or {}
+    local result = {}
+    local data = arg.data or {}
+    for _, item in ipairs(data.items) do
+        local count = 0
+        -- v can contain nil values, use t.
+        if type(item.t) == 'table' then
+            count = #item.t
+        end
+        table.insert(result, {
+            p = item.p,
+            v = count
+        })
+    end
+    return result
+end
+
+return lib
+```
+
+#### Function argument
+
+The raw historical data query result gets passed to the function as part of the `arg` argument. The JSON representation is as follows:
+
+```json
+{
+    "data": {
+        "query_index": "1",
+        "start_time": "2018-11-11T00:00:00.000Z",
+        "end_time": "2018-11-13T00:00:00.000Z",
+        "items": [
+            {
+            "p": "/System/Core/...",
+            "v": [],
+            "q": [],
+            "t": []
+            }
+        ]
+    }
+}
+```
+
+#### Response content type
+
+Post Execution makes it also possible to return the data in a different format then JSON. The example library [rrhd-post-exec-with-headers](./scripts/rrhd-post-exec-with-headers.lua) show how to return a csv by defining the HTTP headers `'["Content-Type"] = "txt/csv"'` in the response.
+
+#### Function chain
+
+By defining multiple 'execFunction' items in the 'post_execution' array. A chain of functions can be created. During execution the result of a function will be passed to the next function in the `data` field as part the `arg` argument.
