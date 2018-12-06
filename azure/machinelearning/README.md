@@ -9,7 +9,7 @@ Azure Machine Learning Studio supports Python and R script execution, which enab
 ## Invoking function from the Zip file
 
 Functions from the Zip file can be invoked by adding "Execute Python Script" tile. Example code for invoking the ReadHistoricalData
-endpoint is [here](./scripts/readHistoricalData.py). In the Python script file, fill in the DataStudio item paths, which historical data should be read, start and end time and the intervals. Connect the zip file to the Python script file and click on run.
+endpoint is [here](./scripts/readhistoricaldata.py). In the Python script file, fill in the DataStudio item paths, which historical data should be read, start and end time and the intervals. Connect the zip file to the Python script file and click on run.
 
 ## Access input data
 
