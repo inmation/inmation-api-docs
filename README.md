@@ -24,6 +24,12 @@ The following clients are available:
 
 What is NGINX and why it should be used with inmation Web API. Read more about it [here](./nginx/README.md).
 
+## Azure Machine Learning Studio
+
+How inmation Web API simplifies machine learning. Click here for example script.
+
+Read more about it [here](./azure/machinelearning/README.md).
+
 ## About inmation
 
 ![inmation header](https://www.inmation.com/images/inmation_github_header.png "inmation")
