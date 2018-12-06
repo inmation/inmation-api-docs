@@ -15,31 +15,33 @@ There are different ways to install the Web API service. First, the service may 
 | help | | Provides information about available actions and options. |
 | | | |
 | -i | | Install the inmation Web API as a service.|
-| | corehost | (Default: localhost) Specifies the Core's host address.|
-| | coreport | (Default: 6512) Specifies a particular setting for the Core Service Port.|
+| | corehost | Specifies the Core's host address, by default localhost|
+| | coreport | Specifies a particular setting for the Core Service Port, by default 6512.|
+| | instance | Optional, specifies the instance name for the inmation Web API. |
 | | profile | API User profile which is used in the communication with the Core. |
 | | pwd | API User password which is used in the communication with the Core. |
 | | | |
 | -e | | Executes the Web API as a console application. |
-| | service | (Default: 0) Value 1 indicates the inmation Web API is started as a Windows Service. |
-| | oid | Specifies the inmation 'Web API Server' object ID. |
 | | auth | Contains the credentials for the inmation Web API account. (used when installed as a service.) |
-| | corehost | (Default: localhost) Specifies the Core's host address. |
-| | coreport | (Default: 6512) Specifies a particular setting for the Core Service Port. |
+| | corehost | Specifies the Core's host address, by default localhost|
+| | coreport | Specifies a particular setting for the Core Service Port, by default 6512.|
+| | oid | Specifies the inmation 'Web API Server' object ID to link to. |
 | | profile | API User profile which is used in the communication with the Core. |
 | | pwd | API User password which is used in the communication with the Core. |
+| | service | (Default: 0) Value 1 indicates the inmation Web API is started as a Windows Service. |
 | | | |
-| -r | | Removes the inmation Web API Windows service. |
+| -r | | Removes the 'inmation Web API' Windows service. |
+| | instance | Optional, specifies the instance name of the Windows service to remove, by default "inmation Web API" |
 
 Command line options have the prefix '--'.
 
-Example command to install the Web API as a service:
+Example command to install the inmation Web API as a Windows service:
 
 ```txt
- inmation.WebApi.WindowsService.exe -i --profile webapi --pwd password
+ inmationWebAPI.exe -i --corehost localhost --coreport 6512 --profile webapi --pwd password
  ```
 
-After installation a Web API Server Object is automatically created in the inmation Server Model. Only the first Web API Server object in the Server Model will be automatically be enabled after creation.
+After installation a Web API Server Object is automatically created in the inmation Server Model. Only the first Web API Server object in the Server Model will automatically be enabled after creation.
 
 ## Settings
 
@@ -49,7 +51,7 @@ The file 'inmation.WebApi.WindowsService.exe.config' contains settings to be abl
 
 ## Swagger
 
-The Swagger documentation can be viewed in de Web Browser by visiting: `http://hostname:8002/api/docs`.
+The Swagger documentation can be viewed in a Web Browser by visiting: `http://hostname:8002/api/docs`.
 
 ## Authentication
 
