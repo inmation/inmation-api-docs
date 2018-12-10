@@ -21,7 +21,7 @@ NGINX offers the (Open Source Software) `OSS` and the commercial `NGINX Plus` so
 | `Extended status with 90 additional metrics`                     |                      | Yes          |
 | Active‑active, active‑passive HA with config sync, state sharing |                      | Yes          |
 | `NGINX Plus API for dynamic reconfiguration`                     |                      | Yes          |
-\
+
 NGINX Plus is a powerful load balancer, web server, and content cache build on top of the open source NGINX. The **biggest differences** between the `NGINX OSS` and `NGINX Plus` for **inmation customers** are:
 
 * `Active health checks`. The open source software performs basic checks on responses from the upstream servers, Plus version adds out-of-band health checks and adds the new and recovered servers into the load-balanced group.
