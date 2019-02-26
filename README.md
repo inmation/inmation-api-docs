@@ -20,6 +20,8 @@ The following clients are available:
 
 ### [Visual Studio Code Extension](./vscode/README.md)
 
+### [Power BI Connector](./powerbi/README.md)
+
 ## NGINX Plus for system:inmation
 
 What is NGINX and why it should be used with inmation Web API. Read more about it [here](./nginx/README.md).
