@@ -20,7 +20,7 @@ The following clients are available:
 
 ### [Visual Studio Code Extension](./vscode/README.md)
 
-### [Power BI Connector](./powerbi/README.md)
+### [Power BI Connector](https://github.com/inmation/inmation-api-docs/tree/master/powerbi)
 
 ## NGINX Plus for system:inmation
 
