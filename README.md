@@ -1,5 +1,7 @@
 # inmation API Docs
 
+WARNING: This repo Is deprecated,  use the [inmation Docs](https://inmation.com/docs).
+
 Containing documentation and examples about Web API and Clients.
 
 ## inmation Web API
